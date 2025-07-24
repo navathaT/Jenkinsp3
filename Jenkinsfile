@@ -10,20 +10,15 @@ pipeline {
     }
 
     environment {
-<<<<<<< HEAD
-        // Azure Service Principal credentials (set in Jenkins credentials store)
-=======
->>>>>>> 7fc5816 (Initial commit for Jenkins project)
+
+
         ARM_CLIENT_ID = credentials('azure-client-id')
         ARM_CLIENT_SECRET = credentials('azure-client-secret')
         ARM_TENANT_ID = credentials('azure-tenant-id')
         ARM_SUBSCRIPTION_ID = credentials('azure-subscription-id')
         ADMIN_PASSWORD_PLACEHOLDER = 'pwdtoimportterraform'
 
-<<<<<<< HEAD
-        // Terraform backend config
-=======
->>>>>>> 7fc5816 (Initial commit for Jenkins project)
+
         TF_BACKEND_RESOURCE_GROUP_NAME = "rg-dev"
         TF_BACKEND_STORAGE_ACCOUNT_NAME = "storacctdev123"
         TF_BACKEND_CONTAINER_NAME = "tfstate"

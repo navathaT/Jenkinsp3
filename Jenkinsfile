@@ -1,0 +1,113 @@
+pipeline {
+    agent any
+
+    environment {
+        // Define Azure credentials for Terraform
+        // These should be set as Jenkins credentials and then referenced here.
+        // Go to Jenkins -> Dashboard -> Manage Jenkins -> Manage Credentials -> (global) -> Add Credentials
+        // Create Secret text credentials with these IDs and your actual values.
+        ARM_CLIENT_ID = credentials('azure-sp-client-id')
+        ARM_CLIENT_SECRET = credentials('azure-sp-client-secret')
+        ARM_TENANT_ID = credentials('azure-sp-tenant-id')
+        ARM_SUBSCRIPTION_ID = credentials('azure-subscription-id')
+        ADMIN_PASSWORD_PLACEHOLDER = 'pwdtoimportterraform'
+
+        // Terraform backend configuration from main.tf
+        TF_BACKEND_RESOURCE_GROUP_NAME = "tf-iac-rg"
+        TF_BACKEND_STORAGE_ACCOUNT_NAME = "tfstatejenkins12345"
+        TF_BACKEND_CONTAINER_NAME = "tfstate"
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                // Checkout the SCM (Git repository)
+                git branch: env.BRANCH_NAME, credentialsId: 'github-ssh-key', url: 'git@github.com:Aashish1201/Project-3-IAC-.git'
+            }
+        }
+
+        stage('Initialize Terraform') {
+            steps {
+                script {
+            // Initialize Terraform with remote backend configuration
+            // The 'key' for the state file is set dynamically based on the branch name.
+                    bat """terraform init -backend-config="resource_group_name=${TF_BACKEND_RESOURCE_GROUP_NAME}" -backend-config="storage_account_name=${TF_BACKEND_STORAGE_ACCOUNT_NAME}" -backend-config="container_name=${TF_BACKEND_CONTAINER_NAME}" -backend-config="key=${env.BRANCH_NAME}.terraform.tfstate"""
+        }
+    }
+}
+        // stage('Terraform Import Resource Group') {
+        //     steps {
+        //         script {
+        //             // This command imports an *existing* Azure Resource Group into Terraform state.
+        //             // It should typically be run only once to bring pre-existing resources under Terraform management.
+        //             // After a successful run, you can comment out or remove this stage from your Jenkinsfile.
+        //             bat "terraform import -var=\"prefix=${env.BRANCH_NAME}\" -var=\"admin_password=${ADMIN_PASSWORD_PLACEHOLDER}\" azurerm_resource_group.main /subscriptions/551517c1-0d84-4fae-965e-e77b7ae610b2/resourceGroups/tf-iac-rg"
+        //         }
+        //     }
+        // }
+
+        stage('Validate Terraform Configuration') {
+            steps {
+                bat 'terraform validate'
+            }
+        }
+
+        stage('Plan Terraform Changes') {
+            steps {
+                script {
+                    def tfvarsFile
+                    if (env.BRANCH_NAME == 'staging') {
+                        tfvarsFile = 'staging.tfvars'
+                    } else if (env.BRANCH_NAME == 'production') {
+                        tfvarsFile = 'production.tfvars'
+                    } else {
+                        // For other branches (e.g., main), you might still want to plan with staging vars or a default.
+                        // Or, you might decide to skip 'apply' for non-staging/production branches.
+                        tfvarsFile = 'staging.tfvars' // Default for main/development branches
+                    }
+                    bat "terraform plan -var-file=${tfvarsFile} -out=tfplan"
+                }
+            }
+        }
+
+        stage('Apply Terraform Changes') {
+            // This stage will only run for 'staging' and 'production' branches.
+            when {
+                anyOf {
+                    branch 'staging'
+                    branch 'production'
+                }
+            }
+            steps {
+                script {
+                    // Manual approval for production deployments
+                    if (env.BRANCH_NAME == 'production') {
+                        input message: 'Proceed with Production deployment? (Requires manual approval)', ok: 'Deploy Now'
+                    }
+
+                    def tfvarsFile
+                    if (env.BRANCH_NAME == 'staging') {
+                        tfvarsFile = 'staging.tfvars'
+                    } else if (env.BRANCH_NAME == 'production') {
+                        tfvarsFile = 'production.tfvars'
+                    }
+                    bat "terraform apply -auto-approve -var-file=${tfvarsFile} tfplan"
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Clean up the workspace after the build.
+            // This is important for subsequent builds to start with a clean slate.
+            cleanWs()
+        }
+        success {
+            echo 'Terraform pipeline completed successfully!'
+        }
+        failure {
+            echo 'Terraform pipeline failed. Check the build logs for errors.'
+        }
+    }
+}

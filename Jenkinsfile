@@ -31,7 +31,7 @@ pipeline {
                 script {
             // Initialize Terraform with remote backend configuration
             // The 'key' for the state file is set dynamically based on the branch name.
-                    bat """terraform init -backend-config="resource_group_name=${TF_BACKEND_RESOURCE_GROUP_NAME}" -backend-config="storage_account_name=${TF_BACKEND_STORAGE_ACCOUNT_NAME}" -backend-config="container_name=${TF_BACKEND_CONTAINER_NAME}" -backend-config="key=${env.BRANCH_NAME}.terraform.tfstate"""
+                    sh """terraform init -backend-config="resource_group_name=${TF_BACKEND_RESOURCE_GROUP_NAME}" -backend-config="storage_account_name=${TF_BACKEND_STORAGE_ACCOUNT_NAME}" -backend-config="container_name=${TF_BACKEND_CONTAINER_NAME}" -backend-config="key=${env.BRANCH_NAME}.terraform.tfstate"""
         }
     }
 }
@@ -48,7 +48,7 @@ pipeline {
 
         stage('Validate Terraform Configuration') {
             steps {
-                bat 'terraform validate'
+                sh 'terraform validate'
             }
         }
 
@@ -65,7 +65,7 @@ pipeline {
                         // Or, you might decide to skip 'apply' for non-staging/production branches.
                         tfvarsFile = 'staging.tfvars' // Default for main/development branches
                     }
-                    bat "terraform plan -var-file=${tfvarsFile} -out=tfplan"
+                    sh "terraform plan -var-file=${tfvarsFile} -out=tfplan"
                 }
             }
         }
@@ -91,7 +91,7 @@ pipeline {
                     } else if (env.BRANCH_NAME == 'production') {
                         tfvarsFile = 'production.tfvars'
                     }
-                    bat "terraform apply -auto-approve -var-file=${tfvarsFile} tfplan"
+                    sh "terraform apply -auto-approve -var-file=${tfvarsFile} tfplan"
                 }
             }
         }

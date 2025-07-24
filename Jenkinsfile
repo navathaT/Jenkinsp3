@@ -18,7 +18,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: env.BRANCH_NAME, url: 'https://github.com/navathaT/Terraform-Iac.git'
+                git branch: env.BRANCH_NAME, url: 'https://github.com/navathaT/Jenkinsp3.git'
             }
         }
 

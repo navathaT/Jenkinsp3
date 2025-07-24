@@ -35,16 +35,8 @@ pipeline {
         }
     }
 }
-        // stage('Terraform Import Resource Group') {
-        //     steps {
-        //         script {
-        //             // This command imports an *existing* Azure Resource Group into Terraform state.
-        //             // It should typically be run only once to bring pre-existing resources under Terraform management.
-        //             // After a successful run, you can comment out or remove this stage from your Jenkinsfile.
-        //             bat "terraform import -var=\"prefix=${env.BRANCH_NAME}\" -var=\"admin_password=${ADMIN_PASSWORD_PLACEHOLDER}\" azurerm_resource_group.main /subscriptions/551517c1-0d84-4fae-965e-e77b7ae610b2/resourceGroups/tf-iac-rg"
-        //         }
-        //     }
-        // }
+        
+        
 
         stage('Validate Terraform Configuration') {
             steps {

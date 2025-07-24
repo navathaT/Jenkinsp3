@@ -22,7 +22,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 // Checkout the SCM (Git repository)
-                git branch: env.BRANCH_NAME, credentialsId: 'github-ssh-key', url: 'git@github.com:Aashish1201/Project-3-IAC-.git'
+                git branch: env.BRANCH_NAME, credentialsId: 'github-ssh-key', url: 'git@github.com:navathaT/Jenkinsp3.git'
             }
         }
 

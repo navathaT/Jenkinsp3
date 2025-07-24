@@ -34,7 +34,11 @@ pipeline {
                 sh "cat ${params.ENV}.tfvars || echo '${params.ENV}.tfvars file not found'"
             }
         }
-
+        stage('Import Existing Resources') {
+    steps {
+        sh 'terraform import azurerm_resource_group.main /subscriptions/${ARM_SUBSCRIPTION_ID}/resourceGroups/rg-dev || true'
+    }
+}
         stage('Initialize Terraform') {
             steps {
                 sh """

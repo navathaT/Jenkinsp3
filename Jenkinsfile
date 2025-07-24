@@ -6,9 +6,9 @@ pipeline {
         // These should be set as Jenkins credentials and then referenced here.
         // Go to Jenkins -> Dashboard -> Manage Jenkins -> Manage Credentials -> (global) -> Add Credentials
         // Create Secret text credentials with these IDs and your actual values.
-        ARM_CLIENT_ID = credentials('azure-sp-client-id')
-        ARM_CLIENT_SECRET = credentials('azure-sp-client-secret')
-        ARM_TENANT_ID = credentials('azure-sp-tenant-id')
+        ARM_CLIENT_ID = credentials('azure-client-id')
+        ARM_CLIENT_SECRET = credentials('azure-client-secret')
+        ARM_TENANT_ID = credentials('azure-tenant-id')
         ARM_SUBSCRIPTION_ID = credentials('azure-subscription-id')
         ADMIN_PASSWORD_PLACEHOLDER = 'pwdtoimportterraform'
 

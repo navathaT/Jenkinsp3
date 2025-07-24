@@ -13,8 +13,8 @@ pipeline {
         ADMIN_PASSWORD_PLACEHOLDER = 'pwdtoimportterraform'
 
         // Terraform backend configuration from main.tf
-        TF_BACKEND_RESOURCE_GROUP_NAME = "tf-iac-rg"
-        TF_BACKEND_STORAGE_ACCOUNT_NAME = "tfstatejenkins12345"
+        TF_BACKEND_RESOURCE_GROUP_NAME = "rg-dev"
+        TF_BACKEND_STORAGE_ACCOUNT_NAME = "storacctdev123"
         TF_BACKEND_CONTAINER_NAME = "tfstate"
     }
 
